@@ -17,7 +17,7 @@ class AnimationBuilder(private val startValue: Element, private val endValue: El
         return this
     }
 
-    fun build(): Animation<Element> {
-        return Animation(startValue, endValue, duration, easing)
+    fun build(): ObjectAnimation<Element> {
+        return ObjectAnimation(startValue, endValue, duration, easing)
     }
 }
