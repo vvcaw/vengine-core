@@ -1,3 +1,7 @@
 package me.vvcaw.vengine.core.elements
 
-abstract class Element
+import processing.core.PApplet
+
+interface Element {
+    fun render(app: PApplet)
+}
