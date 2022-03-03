@@ -1,19 +1,41 @@
 package me.vvcaw.vengine.core.execution
 
-import me.vvcaw.vengine.core.elements.Ellipse
+import me.vvcaw.vengine.core.animation.WaitAnimation
+import me.vvcaw.vengine.core.animation.Animation
 import processing.core.PApplet
 
-class Scene : PApplet() {
-    // TODO: Have this as scene object to save state, when building provide list, that maps frames to objects to be rendered, then somehow call render methods, like ellipse in (object.draw())
-    // TODO: Take Keyframe code from last project and adopt here, keep hash map of keyframes, where key is start frame and keyframe saves duration, then keep list of currently active keyframes and update accordingly
+class Scene {
+    private var duration: Double = 0.0
+    private var fps: Float = 60f
+    private val elements: MutableMap<Int, MutableList<Animation>> = mutableMapOf()
 
-    override fun settings() {
-        size(500, 500)
+    /**
+     * ## wait
+     *
+     * Sleeps the animation at the given step.
+     *
+     * @param duration Time to sleep for.
+     */
+    fun wait(duration: Double) {
+        // Update duration of animation
+        this.duration += duration
+
+        // Add wait animation to animation map
+        val list = elements.getOrElse((duration * fps).toInt()) { mutableListOf() }
+        list.add(WaitAnimation(duration))
     }
 
-    override fun draw() {
-        background(64)
-        val e = Ellipse()
-        e.render(this)
+    /**
+     * ## render
+     *
+     * Renders the current scene and builds a processing scene from it.
+     */
+    fun render() {
+        // Arguments for processing
+        val appletArgs = listOf("Test")
+
+        // Create app & run sketch
+        val applet = App(fps, elements, duration)
+        PApplet.runSketch(appletArgs.toTypedArray(), applet)
     }
 }
