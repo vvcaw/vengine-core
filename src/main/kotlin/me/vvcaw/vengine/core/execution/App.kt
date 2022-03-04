@@ -1,20 +1,27 @@
 package me.vvcaw.vengine.core.execution
 
 import me.vvcaw.vengine.core.animation.Animation
+import me.vvcaw.vengine.core.animation.WaitAnimation
 import me.vvcaw.vengine.core.elements.Element
 import me.vvcaw.vengine.core.elements.Ellipse
 import processing.core.PApplet
 
 class App(
     private val fps: Float,
-    private val elements: MutableMap<Int, MutableList<Animation>>,
+    private val animations: MutableMap<Int, MutableList<Animation>>,
     private val duration: Double
 ) : PApplet() {
-    private val activeElements: MutableList<Pair<Int, Animation>> = mutableListOf()
+    private val activeAnimations: MutableList<Pair<Int, Animation>> = mutableListOf()
+    private val activeElements: Map<Element, Boolean> = mutableMapOf()
+
+    override fun setup() {
+        // This needs to be called after surface is created
+        frameRate(fps)
+    }
 
     override fun settings() {
+        // This needs to be called before surface is created
         size(500, 500)
-        frameRate(fps)
     }
 
     override fun draw() {
@@ -25,30 +32,32 @@ class App(
         updateElements()
 
         // Render all active elements
-        render()
+        renderFrame()
 
-        // Reset animation if full duration is reached
+        // Update frame count
         frameCount = updateFrameCount()
+        println("Current frame: $frameCount")
     }
 
     private fun updateElements() {
         // Remove and skip all elements, whose animations stopped
-        activeElements.removeIf { (startFrame, _) -> (frameCount - startFrame) - (duration * frameRate) <= 0 }
+        activeAnimations.removeIf { (startFrame, _) -> (frameCount - startFrame) - (duration * frameRate) <= 0 }
 
         // Get and add new elements
-        //activeElements.addAll(elements[frameCount]?.map { Pair(frameCount, it) } ?: return)
+        activeAnimations.addAll(animations[frameCount]?.map { Pair(frameCount, it) } ?: return)
+
+        // Evaluate all active animations
+        activeAnimations.forEach { (_, animation) ->
+            when (animation) {
+                is WaitAnimation -> return
+                else -> TODO("Not yet implemented!")
+            }
+        }
     }
 
-    private fun render() {
+    private fun renderFrame() {
         // Render each active element
-        activeElements.forEach { (startFrame, animation) ->
-            // Get current animation state based on percentage
-            //val animatedElement: Element =
-            //  animation.getAnimationState((frameCount - startFrame) / (duration * frameRate))
-
-            // Render element
-            //animatedElement.render(this)
-        }
+        activeElements.keys.forEach { it.render(this) }
     }
 
     // Reset frames (restart animation) if animation is done
