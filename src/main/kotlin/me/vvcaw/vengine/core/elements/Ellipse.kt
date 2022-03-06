@@ -9,6 +9,13 @@ data class Ellipse(private var test: String) : Element {
         app.ellipse(app.mouseX.toFloat(), app.mouseY.toFloat(), 20F, 20F)
     }
 
+    override fun copyElementData(element: Element) {
+        // Cast to ellipse
+        val ellipse = element as Ellipse
+
+        this.test = ellipse.test
+    }
+
     // TODO: Make this an override method for clarity
     fun animateTo(target: Ellipse): Animation {
         // Build animation
