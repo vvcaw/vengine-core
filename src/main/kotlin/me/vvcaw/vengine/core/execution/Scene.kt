@@ -2,6 +2,7 @@ package me.vvcaw.vengine.core.execution
 
 import me.vvcaw.vengine.core.animation.WaitAnimation
 import me.vvcaw.vengine.core.animation.Animation
+import me.vvcaw.vengine.core.animation.AnimationBuilder
 import processing.core.PApplet
 
 class Scene {
@@ -23,6 +24,10 @@ class Scene {
         // Add wait animation to animation map
         val list = elements.getOrElse((duration * fps).toInt()) { mutableListOf() }
         list.add(WaitAnimation(duration))
+    }
+
+    fun animate(animationBuilder: AnimationBuilder<*, *>) {
+        TODO("Not yet implemented!")
     }
 
     /**

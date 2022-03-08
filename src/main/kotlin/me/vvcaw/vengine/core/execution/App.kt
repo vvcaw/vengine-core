@@ -1,7 +1,7 @@
 package me.vvcaw.vengine.core.execution
 
 import me.vvcaw.vengine.core.animation.Animation
-import me.vvcaw.vengine.core.animation.ObjectAnimation
+import me.vvcaw.vengine.core.animation.PropertyAnimation
 import me.vvcaw.vengine.core.animation.WaitAnimation
 import me.vvcaw.vengine.core.elements.Element
 import me.vvcaw.vengine.core.elements.Ellipse
@@ -27,7 +27,7 @@ class App(
 
     override fun draw() {
         background(64)
-        val e = Ellipse("asdf")
+        val e = Ellipse("asdf", 1.0)
         e.render(this)
         // Update list and map of elements in scene
         updateElements()
@@ -49,7 +49,8 @@ class App(
                 .onEach { (_, animation) ->
                     when (animation) {
                         is WaitAnimation -> return@onEach
-                        is ObjectAnimation<*> -> activeElements.remove(animation.elementPointer)
+                        is PropertyAnimation<*, *> -> return@onEach //activeElements.remove(animation.elementPointer)
+                        // is RemoveAnimation -> return@onEach
                         else -> TODO("Not yet implemented!")
                     }
                 }
@@ -59,20 +60,22 @@ class App(
         activeAnimations.addAll(animations[frameCount]?.map { Pair(frameCount, it) } ?: listOf())
 
         // Evaluate all active animations
-        activeAnimations.forEach { (_, animation) ->
+        activeAnimations.forEach { (startFrame, animation) ->
             when (animation) {
                 is WaitAnimation -> return
-                is ObjectAnimation<*> -> {
+                is PropertyAnimation<*, *> -> {
                     // Either find the element pointer in list or add it to the list
                     activeElements.find { it == animation.elementPointer } ?: run {
                         activeElements.add(animation.elementPointer)
 
-                        // Set all values to start values of the first frame where element is added
-                        animation.elementPointer.copyElementData(animation.start)
+                        // TODO: Set all values to start values of the first frame where element is added
+                        //animation.elementPointer.copyElementData(animation.start)
                     }
 
-                    // TODO: Update values based on percentage
+                    // Update values based on percentage
+                    animation.updateValues((animation.duration * frameRate - startFrame) / animation.duration)
                 }
+                // is RemoveAnimation -> // Remove item from render list
                 else -> TODO("Not yet implemented!")
             }
         }

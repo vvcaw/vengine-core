@@ -74,6 +74,13 @@
             <version>1.6.0</version>
         </dependency>
 
+        <!-- Kotlin reflection -->
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+            <version>1.6.10</version>
+        </dependency>
+
         <!-- Processing -->
 
         <!-- https://mvnrepository.com/artifact/org.processing/core -->
