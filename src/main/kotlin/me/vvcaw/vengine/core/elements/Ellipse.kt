@@ -6,7 +6,7 @@ import processing.core.PApplet
 data class Ellipse(var test: String, var x: Double) : Element {
     // This is the pointer to be passed to builder and to be later used for animation,
     // we do not use this instance, as it has mutated properties after the scripting process
-    private val pointer = this.copy()
+    private var pointer: Ellipse? = null
 
     /**
      * ## render
@@ -28,7 +28,7 @@ data class Ellipse(var test: String, var x: Double) : Element {
      */
     fun <T> animate(vararg changes: PropertyPair<Ellipse, in T>): AnimationBuilder<Ellipse, T> {
         // Build animation
-        val builder = AnimationBuilder(changes.toList(), pointer)
+        val builder = AnimationBuilder(changes.toList(), getOrCreatePointer())
 
         // Update members, so that animation works when building the file
         changes.forEach { change ->
@@ -39,5 +39,13 @@ data class Ellipse(var test: String, var x: Double) : Element {
         }
 
         return builder
+    }
+
+    private fun getOrCreatePointer(): Ellipse {
+        if (pointer == null) {
+            pointer = this.copy()
+        }
+
+        return pointer as Ellipse
     }
 }
