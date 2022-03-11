@@ -8,7 +8,12 @@ import processing.core.PApplet
 class Scene {
     private var duration: Double = 0.0
     private var fps: Float = 60f
-    private val elements: MutableMap<Int, MutableList<Animation>> = mutableMapOf()
+    private val frameToAnimation: MutableMap<Int, MutableList<Animation>> = mutableMapOf()
+
+    init {
+        // Assign a value to CURRENT_SCENE
+        CURRENT_SCENE = this
+    }
 
     /**
      * ## wait
@@ -22,11 +27,32 @@ class Scene {
         this.duration += duration
 
         // Add wait animation to animation map
-        val list = elements.getOrElse((duration * fps).toInt()) { mutableListOf() }
+        val list = frameToAnimation.getOrElse((duration * fps).toInt()) { mutableListOf() }
         list.add(WaitAnimation(duration))
     }
 
-    fun animate(animationBuilder: AnimationBuilder<*, *>) {
+    /**
+     * ## addBlockingAnimation
+     *
+     * Adds a given **blocking** animation builder to the scene.
+     *
+     * @param animationBuilder Builder to add to the scene.
+     */
+    fun addBlockingAnimation(animationBuilder: AnimationBuilder<*, *>) {
+        // Update duration of animation
+
+        TODO("Not yet implemented!")
+    }
+
+    /**
+     * ## addDynamicAnimation
+     *
+     * Adds a given **dynamic** animation builder to the scene (it does not add to the duration of the animation directly).
+     *
+     * @param animationBuilder Builder to add to the scene.
+     */
+    fun addDynamicAnimation(animationBuilder: AnimationBuilder<*, *>) {
+        // Don't update duration of animation
         TODO("Not yet implemented!")
     }
 
@@ -40,7 +66,12 @@ class Scene {
         val appletArgs = listOf("Test")
 
         // Create app & run sketch
-        val applet = App(fps, elements, duration)
+        val applet = App(fps, frameToAnimation, duration)
         PApplet.runSketch(appletArgs.toTypedArray(), applet)
+    }
+
+    companion object {
+        var CURRENT_SCENE: Scene? = null
+        fun getCurrentlyActiveScene(): Scene? = CURRENT_SCENE
     }
 }
