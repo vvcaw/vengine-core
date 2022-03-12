@@ -1,8 +1,6 @@
 package me.vvcaw.vengine.core.execution
 
-import me.vvcaw.vengine.core.animation.WaitAnimation
-import me.vvcaw.vengine.core.animation.Animation
-import me.vvcaw.vengine.core.animation.AnimationBuilder
+import me.vvcaw.vengine.core.animation.*
 import processing.core.PApplet
 
 class Scene {
@@ -25,10 +23,6 @@ class Scene {
     fun wait(duration: Double) {
         // Update duration of animation
         this.duration += duration
-
-        // Add wait animation to animation map
-        val list = frameToAnimation.getOrElse((duration * fps).toInt()) { mutableListOf() }
-        list.add(WaitAnimation(duration))
     }
 
     /**
@@ -36,23 +30,28 @@ class Scene {
      *
      * Adds a given **blocking** animation builder to the scene.
      *
-     * @param animationBuilder Builder to add to the scene.
+     * @param blockingAnimation Animation to add to the scene.
      */
-    fun addBlockingAnimation(animationBuilder: AnimationBuilder<*, *>) {
-        // Update duration of animation
+    fun addBlockingAnimation(blockingAnimation: PropertyAnimation<*, *>) {
+        // Add wait animation to animation map
+        val list = frameToAnimation.getOrElse((this.duration * fps).toInt()) { mutableListOf() }
+        list.add(blockingAnimation)
+        frameToAnimation[(this.duration * fps).toInt()] = list
 
-        TODO("Not yet implemented!")
+        // Update duration of animation
+        this.duration += blockingAnimation.duration
     }
 
     /**
      * ## addDynamicAnimation
      *
-     * Adds a given **dynamic** animation builder to the scene (it does not add to the duration of the animation directly).
+     * Adds a given **dynamic** animation to the scene (it does not add to the duration of the animation directly).
      *
-     * @param animationBuilder Builder to add to the scene.
+     * @param dynamicAnimation Animation to add to the scene.
      */
-    fun addDynamicAnimation(animationBuilder: AnimationBuilder<*, *>) {
+    fun addDynamicAnimation(dynamicAnimation: PropertyAnimation<*, *>) {
         // Don't update duration of animation
+        // TODO: Create class for callback that implements functions like (.waitForFinish)
         TODO("Not yet implemented!")
     }
 

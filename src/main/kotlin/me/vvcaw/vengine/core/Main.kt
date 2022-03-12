@@ -1,22 +1,22 @@
 package me.vvcaw.vengine.core
 
-import me.vvcaw.vengine.core.animation.util.Easing
-import me.vvcaw.vengine.core.elements.*
+import me.vvcaw.vengine.core.elements.Ellipse
+import me.vvcaw.vengine.core.elements.be
 import me.vvcaw.vengine.core.execution.scene
 
 fun main() {
     val scene = scene {
         wait(1.0)
 
-        val e = Ellipse("Hallo", 1.0)
+        val e = Ellipse(100F, 100F)
 
         e.animate(
-            Ellipse::test to "1.0",
-            Ellipse::x to 1.0,
-            Ellipse::x to 1.0,
+            Ellipse::x be 200F,
+            Ellipse::x be 200F,
             duration = 2.0
         )
-            .withEasing(Easing.LINEAR)
+
+        wait(1.0)
     }
 
     scene.render()

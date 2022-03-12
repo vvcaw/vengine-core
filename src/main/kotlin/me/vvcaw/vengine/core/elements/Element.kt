@@ -10,6 +10,6 @@ interface Element {
 
 data class PropertyPair<A : Element, B>(val property: KMutableProperty1<A, B>, val value: B)
 
-infix fun <A : Element, B> KMutableProperty1<A, B>.to(to: B): PropertyPair<A, B> {
+infix fun <A : Element, B> KMutableProperty1<A, B>.be(to: B): PropertyPair<A, B> {
     return PropertyPair(this, to)
 }

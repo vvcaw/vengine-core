@@ -11,7 +11,7 @@ data class PropertyAnimation<T : Element, V>(
     private val easing: Easing
 ) : Animation {
     fun updateValues(progress: Double) {
-        TODO("Not yet implemented!")
+        //println("Current progress in animation: $progress")
     }
 }
 // TODO: Implement function to compare two states of an object and use start or end to do it (start.compare(start, end))
