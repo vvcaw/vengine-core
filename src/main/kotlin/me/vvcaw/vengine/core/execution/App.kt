@@ -5,14 +5,14 @@ import me.vvcaw.vengine.core.animation.PropertyAnimation
 import me.vvcaw.vengine.core.elements.Element
 import processing.core.PApplet
 
-// ! fps is a fixed value, whereas frameRate is fluctuating (probably an real estimation), think about what to use where
+// TODO: fps is a fixed value, whereas frameRate is fluctuating (probably a real estimation), think about what to use where
 class App(
     private val fps: Float,
     private val animations: MutableMap<Int, MutableList<Animation>>,
     private val duration: Double
 ) : PApplet() {
     private val activeAnimations: MutableList<Pair<Int, Animation>> = mutableListOf()
-    private val activeElements: MutableList<Element> = mutableListOf()
+    private val activeElements: MutableMap<Element, Boolean> = mutableMapOf()
 
     override fun setup() {
         // This needs to be called after surface is created
@@ -25,31 +25,26 @@ class App(
     }
 
     override fun draw() {
-        // Set background color
         background(64)
 
-        // Update list and map of elements in scene
-        updateElements()
+        updateAnimationsAndElementState()
 
-        // Render all active elements
         renderFrame()
 
-        // Update frame count
-        // TODO: Think about whether this should be set by this code
+        // TODO: Think about whether this should be set by this code, or there should be a different local variable to keep track of frames
         frameCount = updateFrameCount()
     }
 
-    private fun updateElements() {
+    private fun updateAnimationsAndElementState() {
         // Remove animations & their associated elements
         activeAnimations.removeIf { (startFrame, animation) ->
             // Match on different types of animations for removal
             when (animation) {
                 is PropertyAnimation<*, *> -> {
-                    // The (+1) indicated, that it was already rendered last frame
                     if ((frameCount - startFrame) - (animation.duration * fps) > 0) {
-                        activeElements.remove(animation.elementPointer)
+                        // Deactivate element in hierarchy
+                        activeElements[animation.elementPointer] = false
 
-                        // Remove from list
                         return@removeIf true
                     }
 
@@ -63,22 +58,18 @@ class App(
             }
         }
 
-        // Get and add new animations
+        // Get and add new animations that start this frame
         activeAnimations.addAll(animations[frameCount]?.map { Pair(frameCount, it) } ?: listOf())
 
         // Evaluate all active animations
         activeAnimations.forEach { (startFrame, animation) ->
             when (animation) {
                 is PropertyAnimation<*, *> -> {
-                    // Either find the element pointer in list or add it to the list
-                    activeElements.find { it == animation.elementPointer } ?: run {
-                        activeElements.add(animation.elementPointer)
+                    // Activate element in hierarchy
+                    activeElements[animation.elementPointer] = true
 
-                        // TODO: Set all values to start values of the first frame where element is added
-                    }
-
-                    // Update values based on percentage
-                    animation.updateValues((frameCount - startFrame) / (animation.duration * fps))
+                    val animationProgress = (frameCount - startFrame) / (animation.duration * fps)
+                    animation.updateValues(animationProgress)
                 }
                 // is RemoveAnimation -> // Remove item from render list
                 else -> TODO("Not yet implemented!")
@@ -87,10 +78,10 @@ class App(
     }
 
     private fun renderFrame() {
-        // Render each active element
-        activeElements.forEach { it.render(this) }
+        activeElements.filterValues { it }.forEach { (element, _) -> element.render(this) }
     }
 
     // Reset frames (restart animation) if animation is done
+    // TODO: Set all values to start values and clean list after one animation iteration is done
     private fun updateFrameCount() = if (frameCount >= fps * duration) 0 else frameCount
 }
