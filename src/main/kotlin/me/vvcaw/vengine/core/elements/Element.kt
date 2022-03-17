@@ -5,6 +5,7 @@ import kotlin.reflect.KMutableProperty1
 
 interface Element {
     // TODO: Implement function to compare two states of an object
+    fun getId(): Int
     fun render(app: PApplet)
 }
 

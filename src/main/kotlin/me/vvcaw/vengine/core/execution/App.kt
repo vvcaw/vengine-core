@@ -12,7 +12,7 @@ class App(
     private val duration: Double
 ) : PApplet() {
     private val activeAnimations: MutableList<Pair<Int, Animation>> = mutableListOf()
-    private val activeElements: MutableMap<Element, Boolean> = mutableMapOf()
+    private val activeElements: MutableMap<Int, Pair<Element, Boolean>> = mutableMapOf()
 
     override fun setup() {
         // This needs to be called after surface is created
@@ -43,7 +43,7 @@ class App(
                 is PropertyAnimation<*, *> -> {
                     if ((frameCount - startFrame) - (animation.duration * fps) > 0) {
                         // Deactivate element in hierarchy
-                        activeElements[animation.elementPointer] = false
+                        activeElements[animation.element.getId()] = animation.element to false
 
                         return@removeIf true
                     }
@@ -66,9 +66,9 @@ class App(
             when (animation) {
                 is PropertyAnimation<*, *> -> {
                     // Activate element in hierarchy
-                    activeElements[animation.elementPointer] = true
+                    activeElements[animation.element.getId()] = animation.element to true
 
-                    val animationProgress = (frameCount - startFrame) / (animation.duration * fps)
+                    val animationProgress = ((frameCount - startFrame) / (animation.duration * fps)).toFloat()
                     animation.updateValues(animationProgress)
                 }
                 // is RemoveAnimation -> // Remove item from render list
@@ -78,7 +78,7 @@ class App(
     }
 
     private fun renderFrame() {
-        activeElements.filterValues { it }.forEach { (element, _) -> element.render(this) }
+        activeElements.filterValues { it.second }.forEach { (_, pair) -> pair.first.render(this) }
     }
 
     // Reset frames (restart animation) if animation is done

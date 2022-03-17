@@ -6,13 +6,11 @@ import me.vvcaw.vengine.core.execution.Scene
 import processing.core.PApplet
 
 data class Ellipse(var x: Float, var y: Float) : Element {
-    // This is the pointer to be passed to builder and to be later used for animation,
-    // we do not use this instance, as it has mutated properties after the scripting process
-    private var pointer: Ellipse? = null
-
     // Reference to current scene
     private var scene =
         Scene.getCurrentlyActiveScene() ?: throw IllegalStateException("Make sure that a scene is active!")
+
+    override fun getId() = System.identityHashCode(this)
 
     /**
      * ## render
@@ -37,8 +35,14 @@ data class Ellipse(var x: Float, var y: Float) : Element {
     fun <T> animate(
         vararg changes: PropertyPair<Ellipse, in T>, duration: Double = 1.0, easing: Easing = Easing.LINEAR
     ) {
+        // Changes with original values
+        val fromStartToEndValue = changes.toList().map { (property, value) ->
+            @Suppress("UNCHECKED_CAST")
+            PropertyAnimation.StartToEndAnimationData(property.get(this) as T, value as T, property)
+        }
+
         // Build blocking animation
-        val animation = PropertyAnimation(changes.toList(), getOrCreatePointer(), duration, easing)
+        val animation = PropertyAnimation(fromStartToEndValue, this, duration, easing)
 
         // Update members, so that animation works when building the file
         changes.forEach { change ->
@@ -49,13 +53,5 @@ data class Ellipse(var x: Float, var y: Float) : Element {
 
         // Add builder to scene
         scene.addBlockingAnimation(animation)
-    }
-
-    // Get or create pointer for rendering in App class
-    private fun getOrCreatePointer(): Ellipse {
-        if (pointer == null) {
-            pointer = this.copy()
-        }
-        return pointer as Ellipse
     }
 }

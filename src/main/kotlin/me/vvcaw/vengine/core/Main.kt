@@ -12,7 +12,7 @@ fun main() {
 
         e.animate(
             Ellipse::x be 200F,
-            Ellipse::x be 200F,
+            Ellipse::y be 200F,
             duration = 2.0
         )
 
